@@ -5,3 +5,6 @@
 *.ttf
 audios
 .DS_Store
+.env
+*.pdf
+*.pages

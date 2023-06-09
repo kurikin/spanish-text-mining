@@ -1,6 +1,8 @@
 import matplotlib as mpl
 import os
 import re
+from os.path import join, dirname
+from dotenv import load_dotenv
 from google.cloud import speech_v1p1beta1 as speech
 from google.cloud import translate_v2 as translate
 from wordcloud import WordCloud
@@ -12,20 +14,23 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "credentials.json"
 mpl.rcParams['font.family'] = 'Noto Sans JP'
 
 
-def transcribe_audio(file_name):
+def transcribe_audio():
     client = speech.SpeechClient()
 
-    with open(file_name, "rb") as audio_file:
-        content = audio_file.read()
 
-    audio = speech.RecognitionAudio(content=content)
+    # audio = speech.RecognitionAudio(content=content)
+    uri = os.environ.get("AUDIO_URI")
+    audio = speech.RecognitionAudio(uri=uri)
+
     config = speech.RecognitionConfig(
         encoding=speech.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=48000,
         language_code="es-ES",
     )
 
-    response = client.recognize(config=config, audio=audio)
+    operation = client.long_running_recognize(config=config, audio=audio)
+    print("Waiting for operation to complete...")
+    response = operation.result(timeout=90)
 
     transcript = ""
     for result in response.results:
@@ -58,7 +63,7 @@ def create_word_cloud(words, output_file):
     font_path = os.path.abspath("NotoSansJP-VariableFont_wght.ttf")
 
     wordcloud = WordCloud(background_color='white',
-                          font_path=font_path, width=1920, height=1080, prefer_horizontal=1).generate(words)
+                          font_path=font_path, width=2000, height=1500, prefer_horizontal=1, margin=10).generate(words)
     plt.figure(figsize=(8, 8), facecolor=None)
     plt.imshow(wordcloud)
     plt.axis("off")
@@ -68,17 +73,10 @@ def create_word_cloud(words, output_file):
 
 
 def main():
-    audio_dir = 'audios'
-    audio_file_name = input('Enter the name of the audio file: ')
+    dotenv_path = join(dirname(__file__), '.env')
+    load_dotenv(dotenv_path)
 
-    audio_path = os.path.join(audio_dir, audio_file_name)
-
-    if not os.path.exists(audio_path):
-        print(f"The file {audio_file_name} does not exist.")
-        return
-
-    print("Transcribing audio...")
-    transcribed_text = transcribe_audio(audio_path)
+    transcribed_text = transcribe_audio()
     print(transcribed_text)
 
     with open('transcribed_text_es.txt', 'w') as f:
