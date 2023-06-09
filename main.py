@@ -49,7 +49,7 @@ def extract_words(text, exclusion=[]):
     for line in token:
         tkn = re.split('\t|,', str(line))
         if (tkn[1] in ['名詞'] and tkn[2] in ['一般', '固有名詞']) or (tkn[1] in ['動詞', '形容詞']):
-            words.append(tkn[0])
+            words.append(tkn[7])
 
     return ' ' . join(words)
 
@@ -58,7 +58,7 @@ def create_word_cloud(words, output_file):
     font_path = os.path.abspath("NotoSansJP-VariableFont_wght.ttf")
 
     wordcloud = WordCloud(background_color='white',
-                          font_path=font_path, width=800, height=800, prefer_horizontal=1).generate(words)
+                          font_path=font_path, width=1920, height=1080, prefer_horizontal=1).generate(words)
     plt.figure(figsize=(8, 8), facecolor=None)
     plt.imshow(wordcloud)
     plt.axis("off")
