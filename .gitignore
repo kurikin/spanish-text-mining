@@ -1,0 +1,7 @@
+.vscode
+*.txt
+*.json
+*.png
+*.ttf
+audios
+.DS_Store
