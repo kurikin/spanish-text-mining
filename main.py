@@ -48,7 +48,7 @@ def extract_words(text, exclusion=[]):
 
     for line in token:
         tkn = re.split('\t|,', str(line))
-        if tkn[0] not in exclusion and tkn[1] in ['名詞'] and tkn[2] in ['一般', '固有名詞']:
+        if (tkn[1] in ['名詞'] and tkn[2] in ['一般', '固有名詞']) or (tkn[1] in ['動詞', '形容詞']):
             words.append(tkn[0])
 
     return ' ' . join(words)
